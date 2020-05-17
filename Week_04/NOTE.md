@@ -415,3 +415,52 @@ public int RobotSim(int[] commands, int[][] obstacles)
 
 
 
+### 200. 岛屿的数量
+
+遍历整个二维数组
+
+遇到`1`的地方，用DFS，把每个搜索到的`1`都标记为`0`
+
+```C#
+/// <summary>
+/// 深度优先搜索
+/// </summary>
+/// <param name="grid"></param>
+/// <returns></returns>
+public int NumIslands(char[][] grid)
+{
+    if (grid == null || grid.Length == 0) return 0;
+
+    int rowCount = grid.Length;
+    int colCount = grid[0].Length;
+    int landCount = 0;
+    for(int row = 0; row < rowCount; ++row)
+    {
+        for(int col = 0; col < colCount; ++col)
+        {
+            if (grid[row][col] == '1')
+            {
+                landCount++;
+                DFS(grid, row, col);
+            }
+        }
+    }
+
+    return landCount;
+}
+
+private void DFS(char[][] grid,int r,int c)
+{
+    int rowCount = grid.Length;
+    int colCount = grid[0].Length;
+
+     if (r < 0 || c < 0 || r >= rowCount || c >= colCount || grid[r][c] == '0') return;
+
+    grid[r][c] = '0';
+    DFS(grid, r - 1, c);
+    DFS(grid, r + 1, c);
+    DFS(grid, r, c - 1);
+    DFS(grid, r, c + 1);
+}
+```
+
