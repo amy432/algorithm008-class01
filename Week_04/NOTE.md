@@ -194,7 +194,7 @@ public class Solution
      public int FindReverse(int[] nums)
      {          
          // 少于3个数是数组是一定有序的
-         if (nums.Length <= 3) return -1; 
+         if (nums.Length < 3) return -1; 
          
          var stack = new Stack<KeyValuePair<int,int>>();
          stack.Push(new KeyValuePair<int, int>(0, nums.Length - 1));
@@ -253,11 +253,56 @@ public class Solution
 
 ​      深度遍历的时候，将val保存在对应的层里面。
 
+```c#
+public IList<IList<int>> LevelOrder(TreeNode root)
+{
+    var res = new List<IList<int>>();
+    LevelHelper(res, root, 0);
+    return res;
+}
+
+private void LevelHelper(List<IList<int>> res,TreeNode root,int height)
+{
+    if (root == null) return;
+
+    if (height >= res.Count) res.Add(new List<int>());
+
+    res[height].Add(root.val);
+    LevelHelper(res, root.left, height + 1);
+    LevelHelper(res, root.right, height + 1);            
+}
+```
+
 
 
 ### 455. 分发饼干
 
 ​     贪心算法：先满足需求最小的孩子
+
+```c#
+/// <summary>
+/// 贪心算法
+/// </summary>
+/// <param name="g">孩子</param>
+/// <param name="s">饼干</param>
+/// <returns></returns>
+public int FindContentChildren(int[] g, int[] s)
+{
+    if (g == null || g.Length==0 || s == null || s.Length == 0) return 0;
+
+    Array.Sort(g);
+    Array.Sort(s);
+
+    int children = 0;
+    for(int j=0; children < g.Length && j < s.Length;j++)
+    {
+        if (g[children] <= s[j]) 
+            children++;                    
+    }
+
+    return children;
+}
+```
 
 
 
@@ -266,6 +311,107 @@ public class Solution
 - 客户支付了 `5` 元，不用找零
 - 客户支付了 `10` 元，如果没有 `5` 元，答案就是 `false`
 - 客户支付了`20` 元，如果有 `1`张`10`元和`1`张`5`元，或者有`3`张`5`元，就可以找零，否则答案就是`false`
+
+```c#
+public bool LemonadeChange(int[] bills)
+{
+    if (bills == null || bills.Length == 0) return true;
+
+    int five = 0, ten = 0;
+    for (int i = 0; i < bills.Length; i++)
+    {
+        switch (bills[i])
+        {
+            case 5:
+                five++;
+                break;
+            case 10:
+                if (five == 0)
+                    return false;
+
+                 five--;
+                 ten++;
+                 break;
+             case 20:
+                 if (five > 0 && ten > 0)
+                 {
+                     five--;
+                     ten--;
+                 }
+                 else if (five >= 3)
+                 {
+                     five -= 3;
+                 }
+                 else
+                 {
+                     return false;
+                 }
+                 break;
+         }
+     }
+
+    return true;
+}
+```
+
+### 874. 模拟行走机器人
+
+之前一直不知道什么叫“欧式距离”，原来就是我们熟知的勾股定理里面z的值。
+
+只想到一步一步地模拟行走的过程。
+
+```c#
+public int RobotSim(int[] commands, int[][] obstacles)
+{            
+    int[][] dire = new int[][] {
+           new int[]{ 0, 1 },
+           new int[]{ 1,0},
+           new int[]{0,-1},
+           new int[]{-1,0}};
+
+     int max = 0,x=0,y=0,di=0;
+
+     var obstacleSet = new HashSet<KeyValuePair<int,int>>();
+     foreach(int[] obstacle in obstacles)
+     {
+         obstacleSet.Add(new KeyValuePair<int, int>(obstacle[0], obstacle[1]));
+     }
+
+      foreach(int cmd in commands)
+      {
+          if (cmd == -2) // 左转
+          {
+              di = (di + 3) % 4;
+          }
+          else if (cmd == -1) // 右转
+          {
+              di = (di + 1) % 4;
+          }
+          else
+          {
+              for(int k = 0; k < cmd; k++)
+              {
+                  int newX = x + dire[di][0];
+                  int newY = y + dire[di][1];
+
+                    if(obstacleSet.Contains(new KeyValuePair<int, int>(newX, newY)))
+                    {
+                        // 有障碍物
+                        break;
+                    }
+                    else
+                    {
+                        x = newX;
+                        y = newY;
+                        max = Math.Max(max, x * x + y * y);
+                    }
+                }
+            }
+        }
+
+    return max;
+}
+```
 
 
 
