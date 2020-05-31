@@ -227,3 +227,106 @@ DP方程：
 
 
 ## 2. 刷题小结
+
+### [64. 最小路径和](https://leetcode-cn.com/problems/minimum-path-sum/)
+
+方法1：暴力解法
+
+​     对每一个节点，都考虑向右和向下两个路径，选择权重小的那个
+
+时间复杂度：O(2 ^ n+m)
+
+空间复杂度：O(n+m)
+
+直接超时了
+
+```C#
+public int MinPathSum(int[][] grid)
+{
+    return Calculate(grid, 0, 0);
+}
+
+private int Calculate(int[][] grid,int i,int j)
+{
+    if (i == grid.Length || j == grid[0].Length)
+        return int.MaxValue;
+
+    if (i == grid.Length - 1 && j == grid[0].Length - 1)
+        return grid[i][j];
+
+    return grid[i][j] + Math.Min(Calculate(grid, i + 1, j), Calculate(grid, i, j + 1));
+}
+```
+
+方法 2：动态规划
+
+状态表示：用一个二维数组 `dp` , `dp[i,j]`表示从坐标 `(i,j)` 到右下角的最小路径权值
+
+状态转移：
+
+​      ` dp(i,j)  = grid(i,j) + min(dp(i+1,j),dp(i,j+1))`
+
+确定边界：`dp[grid.Length-1,grid[0].Length - 1] = grid[grid.Length-1][grid[0].Length - 1]`
+
+​      dp 矩阵 右下角的那个格子的值就是 grid 右下角的那个值
+
+时间复杂度：O(nm)
+
+空间复杂度：O(nm)
+
+```C#
+public int MinPathSum(int[][] grid)
+{
+    int lastRowIndex = grid.Length-1;
+    int lastColIndex = grid[0].Length-1;
+
+    int[,] dp = new int[lastRowIndex+1, lastColIndex+1];
+
+    for(int i = lastRowIndex; i >= 0; i--)
+    {
+        for(int j = lastColIndex; j >= 0; j--)
+        {
+            if (i == lastRowIndex && j != lastColIndex)
+                dp[i, j] = grid[i][j] + dp[i, j + 1];
+            else if (i != lastRowIndex && j == lastColIndex)
+                dp[i, j] = grid[i][j] + dp[i + 1, j];
+            else if (i != lastRowIndex && j != lastColIndex)
+                dp[i, j] = grid[i][j] + Math.Min(dp[i + 1, j], dp[i, j + 1]);
+            else
+                dp[i, j] = grid[i][j];
+        }
+    }
+    return dp[0, 0];
+}
+```
+
+方法 3：动态规划优化
+
+不创建dp数组，直接在grid数组中进行修改，节省空间
+
+时间复杂度：O(nm)
+
+空间复杂度：O(1)
+
+```c#
+public int MinPathSum(int[][] grid)
+{
+    int lastRowIndex = grid.Length - 1;
+    int lastColIndex = grid[0].Length - 1;
+
+    for(int i = lastRowIndex; i >= 0; i--)
+    {
+        for(int j = lastColIndex; j >= 0; j--)
+        {
+            if (i == lastRowIndex && j != lastColIndex)
+                grid[i][j] = grid[i][j] + grid[i][j + 1];
+            else if(i!=lastRowIndex && j==lastColIndex)
+                grid[i][j] = grid[i][j] + grid[i+1][j];
+            else if(i!= lastRowIndex && j!=lastColIndex)
+                grid[i][j] = grid[i][j] + Math.Min(grid[i][j + 1],grid[i + 1][j]);  
+        }
+    }
+    return grid[0][0];
+}
+```
+
